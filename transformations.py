@@ -154,6 +154,7 @@ class Transformations4D():
         """
         points3D = []
         polygons3D = []  # НЕ РЕАЛИЗОВАНО !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        edges3D = []  # КОСТЫЛЬ (пока что)
         points4D = figure4D['points']
         polygons4D = figure4D['polygons']
         # перебор полигонов и поиск тех, которые находятся на искомой координате
@@ -161,6 +162,7 @@ class Transformations4D():
             # перебор точек полигона (в контексте линий)
             if len(polygon) > 2:
                 index = 0
+                edge = []  # грань
                 while index < len(polygon):
                     # запоминаем W'ки точек отрезка
                     poly1 = points4D[polygon[index]]
@@ -184,10 +186,12 @@ class Transformations4D():
                         # добавляем новую точку в 3Д массив
                         if [x, y, z] not in points3D:
                             points3D.append([x, y, z])
+                        edge.append(points3D.index([x, y, z]))
                     index += 1
-        print(len(points3D))
-        print("------------------------------------------")
-        return {'points': points3D, 'polygons': polygons3D}
+                # костыльный метод соединения граней !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                if edge != [] and edge not in edges3D:
+                    edges3D.append(edge)
+        return {'points': points3D, 'edges': edges3D, 'polygons': polygons3D}
 
     def scale(self, figure: dict = (), value=1.0):
         array = np.array(figure['points'])

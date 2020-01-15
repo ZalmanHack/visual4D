@@ -27,7 +27,7 @@
         </property>
         <layout class="QGridLayout" name="gridLayout_3">
          <item row="0" column="0">
-          <widget class="QDoubleSpinBox" name="doubleSpinBox">
+          <widget class="QDoubleSpinBox" name="rotate_x">
            <property name="wrapping">
             <bool>false</bool>
            </property>
@@ -52,7 +52,7 @@
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QDoubleSpinBox" name="doubleSpinBox_2">
+          <widget class="QDoubleSpinBox" name="rotate_y">
            <property name="wrapping">
             <bool>false</bool>
            </property>
@@ -77,7 +77,7 @@
           </widget>
          </item>
          <item row="0" column="2">
-          <widget class="QDoubleSpinBox" name="doubleSpinBox_3">
+          <widget class="QDoubleSpinBox" name="rotate_z">
            <property name="wrapping">
             <bool>false</bool>
            </property>
@@ -110,33 +110,8 @@
          <string>4D Вращение</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_2">
-         <item row="0" column="1">
-          <widget class="QDoubleSpinBox" name="doubleSpinBox_5">
-           <property name="wrapping">
-            <bool>false</bool>
-           </property>
-           <property name="specialValueText">
-            <string/>
-           </property>
-           <property name="accelerated">
-            <bool>false</bool>
-           </property>
-           <property name="showGroupSeparator" stdset="0">
-            <bool>false</bool>
-           </property>
-           <property name="prefix">
-            <string> YW </string>
-           </property>
-           <property name="minimum">
-            <double>-360.000000000000000</double>
-           </property>
-           <property name="maximum">
-            <double>360.000000000000000</double>
-           </property>
-          </widget>
-         </item>
          <item row="0" column="2">
-          <widget class="QDoubleSpinBox" name="doubleSpinBox_4">
+          <widget class="QDoubleSpinBox" name="rotate_zw">
            <property name="wrapping">
             <bool>false</bool>
            </property>
@@ -161,7 +136,7 @@
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="QDoubleSpinBox" name="doubleSpinBox_8">
+          <widget class="QDoubleSpinBox" name="rotate_xz">
            <property name="wrapping">
             <bool>false</bool>
            </property>
@@ -185,8 +160,8 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="2">
-          <widget class="QDoubleSpinBox" name="doubleSpinBox_7">
+         <item row="0" column="1">
+          <widget class="QDoubleSpinBox" name="rotate_yw">
            <property name="wrapping">
             <bool>false</bool>
            </property>
@@ -200,7 +175,32 @@
             <bool>false</bool>
            </property>
            <property name="prefix">
-            <string> ZY </string>
+            <string> YW </string>
+           </property>
+           <property name="minimum">
+            <double>-360.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>360.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QDoubleSpinBox" name="rotate_yz">
+           <property name="wrapping">
+            <bool>false</bool>
+           </property>
+           <property name="specialValueText">
+            <string/>
+           </property>
+           <property name="accelerated">
+            <bool>false</bool>
+           </property>
+           <property name="showGroupSeparator" stdset="0">
+            <bool>false</bool>
+           </property>
+           <property name="prefix">
+            <string> YZ </string>
            </property>
            <property name="minimum">
             <double>-360.000000000000000</double>
@@ -211,7 +211,7 @@
           </widget>
          </item>
          <item row="1" column="0">
-          <widget class="QDoubleSpinBox" name="doubleSpinBox_9">
+          <widget class="QDoubleSpinBox" name="rotate_xy">
            <property name="wrapping">
             <bool>false</bool>
            </property>
@@ -236,7 +236,7 @@
           </widget>
          </item>
          <item row="0" column="0">
-          <widget class="QDoubleSpinBox" name="doubleSpinBox_6">
+          <widget class="QDoubleSpinBox" name="rotate_xw">
            <property name="wrapping">
             <bool>false</bool>
            </property>
@@ -260,21 +260,83 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="1">
-          <spacer name="verticalSpacer">
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBox_3">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>76</height>
+         </size>
+        </property>
+        <property name="title">
+         <string>4D Перемещение</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_4">
+         <item row="0" column="0">
+          <widget class="QDoubleSpinBox" name="min_w">
+           <property name="minimum">
+            <double>-1000.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>1000.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QSlider" name="position_w">
            <property name="orientation">
-            <enum>Qt::Vertical</enum>
+            <enum>Qt::Horizontal</enum>
            </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QDoubleSpinBox" name="max_w">
+           <property name="minimum">
+            <double>-1000.000000000000000</double>
            </property>
-          </spacer>
+           <property name="maximum">
+            <double>1000.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>min W</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>max W</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
       </item>
      </layout>
     </item>

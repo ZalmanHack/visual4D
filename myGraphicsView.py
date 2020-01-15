@@ -44,26 +44,30 @@ class MyGraphicView(QGraphicsView):
         self.distance = 3
         self.angle = 0.01
 
-    def connect(self, i = 0, j = 0, points: list = ()):
+    def connect(self, figure2D: dict = ()):
+        for edge in figure2D['edges']:
+            self.scene.addLine(figure2D['points'][edge[0]][0], figure2D['points'][edge[0]][1],
+                               figure2D['points'][edge[1]][0], figure2D['points'][edge[1]][1], self.pen)
+
+    def connectOld(self, i = 0, j = 0, points: list = ()):
         self.scene.addLine(points[i][0], points[i][1],
                            points[j][0], points[j][1], self.pen)
     def draw(self):
         self.scene.clear()
-        self.figure4D = self.transform4D.rotate_zw(self.figure4D, 0.1)  # поворот
+        self.figure4D = self.transform4D.rotate_xy(self.figure4D, 0.1)  # поворот
         self.figure4D = self.transform4D.rotate_xz(self.figure4D, 0.1)  # поворот
+        self.figure4D = self.transform4D.rotate_yz(self.figure4D, 0.1)  # поворот
 
         self.figure3D = self.transform4D.projection_3D(self.figure4D, self.distance, self.coordinate_w)  # проекция
         self.figure3D = self.transform3D.rotate_y(self.figure3D, 50)  # поворот
 
         self.figure2D = self.transform3D.projection_2D(self.figure3D, self.distance)  # проекция
-        print(self.figure3D['points'])
+
         self.figure2D = self.transform3D.scale(self.figure2D, 500)
-        """
         self.pen = QPen(Qt.black)
         self.pen.setWidth(3)
-        for item in self.figure['edges']:
-            self.connect(item[0], item[1], self.points2D)
-        """
+        self.connect(self.figure2D)
+
         diameter = 10
         self.pen.setWidth(3)
         for point in self.figure2D['points']:
