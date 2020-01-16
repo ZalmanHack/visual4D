@@ -3,10 +3,13 @@ import numpy as np
 from PyQt5 import QtCore
 from PyQt5.Qt import *
 
+from PyQt5.Qt import pyqtSignal, pyqtSlot
 from transformations import *
 from figures import *
 
 class MyGraphicView(QGraphicsView):
+
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.initUI()
@@ -22,7 +25,7 @@ class MyGraphicView(QGraphicsView):
         # таймер отрисовки ---------------------------------------------------------------------------------------------
         self.timer = QTimer()
         self.timer.timeout.connect(self.timeout)
-        self.timer.start(1)
+        #self.timer.start(1)
         # шрифт --------------------------------------------------------------------------------------------------------
         self.font = QFont()
         self.font.setPixelSize(25)
@@ -37,45 +40,76 @@ class MyGraphicView(QGraphicsView):
         self.transform4D = Transformations4D()
 
     def initFunctions(self):
-        self.figure4D = Figures().tesseract
-        self.figure3D = None
-        self.figure2D = None
-        self.coordinate_w = 0
+        self.figure = Figures().tesseract
+        self.coordinate_w: float = 0
         self.distance = 3
         self.angle = 0.01
+        self.scale = 1.0
+        self.angles = {
+            'X': .0,
+            'Y': .0,
+            'Z': .0,
+            'XY': .0,
+            'XZ': .0,
+            'ZY': .0,
+            'XW': .0,
+            'YW': .0,
+            'ZW': .0
+        }
 
-    def connect(self, figure2D: dict = ()):
+    def set_scale_figure(self, value: float = 0):
+        self.scale = value
+        self.draw()
+
+    def set_coordinate_w(self, value: float = 0):
+        self.coordinate_w = value
+        self.draw()
+
+    def scale_figure(self, figure: dict = (), value=1.0):
+        array = np.array(figure['points'])
+        array = array.dot(value)
+        figure['points'] = array.tolist()
+        return figure
+
+    def connect(self, figure2D: dict = (), pen: QPen = QPen()):
         for edge in figure2D['edges']:
             self.scene.addLine(figure2D['points'][edge[0]][0], figure2D['points'][edge[0]][1],
-                               figure2D['points'][edge[1]][0], figure2D['points'][edge[1]][1], self.pen)
+                               figure2D['points'][edge[1]][0], figure2D['points'][edge[1]][1], pen)
 
-    def connectOld(self, i = 0, j = 0, points: list = ()):
-        self.scene.addLine(points[i][0], points[i][1],
-                           points[j][0], points[j][1], self.pen)
     def draw(self):
         self.scene.clear()
-        self.figure4D = self.transform4D.rotate_xy(self.figure4D, 0.1)  # поворот
-        self.figure4D = self.transform4D.rotate_xz(self.figure4D, 0.1)  # поворот
-        self.figure4D = self.transform4D.rotate_yz(self.figure4D, 0.1)  # поворот
 
-        self.figure3D = self.transform4D.projection_3D(self.figure4D, self.distance, self.coordinate_w)  # проекция
-        self.figure3D = self.transform3D.rotate_y(self.figure3D, 50)  # поворот
+        figure4D = self.transform4D.rotate_xy(self.figure.copy(), self.angles['XY'])  # поворот
+        figure4D = self.transform4D.rotate_xz(figure4D, self.angles['XZ'])  # поворот
+        figure4D = self.transform4D.rotate_yz(figure4D, self.angles['ZY'])  # поворот
+        figure4D = self.transform4D.rotate_xw(figure4D, self.angles['XW'])  # поворот
+        figure4D = self.transform4D.rotate_yw(figure4D, self.angles['YW'])  # поворот
+        figure4D = self.transform4D.rotate_zw(figure4D, self.angles['ZW'])  # поворот
 
-        self.figure2D = self.transform3D.projection_2D(self.figure3D, self.distance)  # проекция
+        figure3D = self.transform4D.projection_3D(figure4D, self.distance, self.coordinate_w)  # проекция
+        figure3D = self.transform3D.rotate_x(figure3D, self.angles['X'])  # поворот
+        figure3D = self.transform3D.rotate_y(figure3D, self.angles['Y'])  # поворот
+        figure3D = self.transform3D.rotate_z(figure3D, self.angles['Z'])  # поворот
 
-        self.figure2D = self.transform3D.scale(self.figure2D, 500)
-        self.pen = QPen(Qt.black)
-        self.pen.setWidth(3)
-        self.connect(self.figure2D)
+        figure2D = self.transform3D.projection_2D(figure3D, self.distance)  # проекция
+
+        figure2D = self.scale_figure(figure2D, self.scale)
+
+        self.connect(figure2D, self.pen)
 
         diameter = 10
-        self.pen.setWidth(3)
-        for point in self.figure2D['points']:
+        for point in figure2D['points']:
             self.scene.addEllipse(point[0] - diameter/2, point[1] - diameter/2, diameter, diameter, QPen(Qt.NoPen), QBrush(Qt.black))
 
-        self.coordinate_w += 0.0005
-
     def timeout(self):
+        self.draw()
+
+    def rotate_x(self, value: float):
+        self.angles['X'] = value
+        self.draw()
+
+    def rotate(self, type: str = 'X', value: float = 0):
+        self.angles[type] = value
         self.draw()
 
 

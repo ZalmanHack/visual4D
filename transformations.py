@@ -134,7 +134,7 @@ class Transformations4D():
         figure4D['points'] = self._dot(figure4D['points'], matrix)
         return figure4D
 
-    def projection_3D(self, figure4D: dict = (), distance=1.0, coordinate_w=0):
+    def projection_3D(self, figure4D: dict = (), distance: float = 1.0, coordinate_w: float =1.0):
         """
                 projection = np.array([
                     [0., 0., 0., 0],
@@ -178,19 +178,21 @@ class Transformations4D():
                         # вычисляем координаты новой точки, которая лежит на данном отрезке
                         # получем отношение получившихся 2х отрезков (по W координате, потому что знаем только ее)
                         # получаем альфу отношения
-                        alfa = fabs(coordinate_w - poly1[3]) / fabs(coordinate_w - poly2[3])
-                        # получаем координаты новой точки
-                        x = (poly1[0] + alfa * poly2[0]) / (1 + alfa)
-                        y = (poly1[1] + alfa * poly2[1]) / (1 + alfa)
-                        z = (poly1[2] + alfa * poly2[2]) / (1 + alfa)
-                        # добавляем новую точку в 3Д массив
-                        if [x, y, z] not in points3D:
-                            points3D.append([x, y, z])
-                        edge.append(points3D.index([x, y, z]))
+                        if coordinate_w - poly2[3] != 0:
+                            alfa = fabs(coordinate_w - poly1[3]) / fabs(coordinate_w - poly2[3])
+                            # получаем координаты новой точки
+                            x = (poly1[0] + alfa * poly2[0]) / (1 + alfa)
+                            y = (poly1[1] + alfa * poly2[1]) / (1 + alfa)
+                            z = (poly1[2] + alfa * poly2[2]) / (1 + alfa)
+                            # добавляем новую точку в 3Д массив
+                            if [x, y, z] not in points3D:
+                                points3D.append([x, y, z])
+                            edge.append(points3D.index([x, y, z]))
                     index += 1
                 # костыльный метод соединения граней !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 if edge != [] and edge not in edges3D:
                     edges3D.append(edge)
+        print(coordinate_w)
         return {'points': points3D, 'edges': edges3D, 'polygons': polygons3D}
 
     def scale(self, figure: dict = (), value=1.0):
