@@ -15,10 +15,26 @@ class MainWindow(QMainWindow, mainWindowUI.Ui_MainWindow):
         self.setupUi(self)
         self.initUI()
 
+
     def initUI(self):
         # инициализация своей графической сцены ------------------------------------------------------------------------
         self.graphicView = MyGraphicView(self)
         self.gridLayout.addWidget(self.graphicView)
+        self.graphicView.fps.connect(self.fps)
+        self.count = 0
+        self.counter = 10
+        self.sum_fps = 0
+
+    @pyqtSlot(int)
+    def fps(self, value: int):
+        print('time: ' + str(value))
+        if self.count < self.counter:
+            self.count += 1
+            self.sum_fps += value
+        else:
+            self.count = 0
+            self.sum_fps = int(self.sum_fps / self.counter)
+            self.label_fps.setText('FPS: {}'.format(self.sum_fps))
 
 
     @pyqtSlot(float)
@@ -36,6 +52,7 @@ class MainWindow(QMainWindow, mainWindowUI.Ui_MainWindow):
     @pyqtSlot(float)
     def on_rotate_xy_valueChanged(self, value):
         self.graphicView.rotate('XY', value)
+
 
     @pyqtSlot(float)
     def on_rotate_xz_valueChanged(self, value):

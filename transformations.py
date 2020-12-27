@@ -134,24 +134,7 @@ class Transformations4D():
         figure4D['points'] = self._dot(figure4D['points'], matrix)
         return figure4D
 
-    def projection_3D(self, figure4D: dict = (), distance: float = 1.0, coordinate_w: float =1.0):
-        """
-                projection = np.array([
-                    [0., 0., 0., 0],
-                    [0., 0., 0., 0],
-                    [0., 0., 0., 0]
-                ], float)
-                array = np.array(figure4D['points'])
-                if array is not None:
-                    result: list = []
-                    if len(array.shape) == 2 and array.shape[1] == 4:
-                        for row_XYZW in array:
-                            projection[0][0] = 1.0 / (distance - row_XYZW[3])
-                            projection[1][1] = 1.0 / (distance - row_XYZW[3])
-                            projection[2][2] = 1.0 / (distance - row_XYZW[3])
-                            result.append(projection.dot(row_XYZW.reshape(4, 1)).reshape(1, 3)[0])
-                    return result
-        """
+    def intersection_4D(self, figure4D: dict = (), coordinate_w: float =1.0):
         points3D = []
         polygons3D = []  # НЕ РЕАЛИЗОВАНО !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         edges3D = []  # КОСТЫЛЬ (пока что)
@@ -174,7 +157,7 @@ class Transformations4D():
                     if poly1[3] > poly2[3]:
                         poly1, poly2 = poly2, poly1
                     # проверяем, входит ли искомая координата в искомый диапазон
-                    if coordinate_w > poly1[3] and coordinate_w <= poly2[3]:
+                    if coordinate_w >= poly1[3] and coordinate_w <= poly2[3]:
                         # вычисляем координаты новой точки, которая лежит на данном отрезке
                         # получем отношение получившихся 2х отрезков (по W координате, потому что знаем только ее)
                         # получаем альфу отношения
@@ -186,14 +169,33 @@ class Transformations4D():
                             z = (poly1[2] + alfa * poly2[2]) / (1 + alfa)
                             # добавляем новую точку в 3Д массив
                             if [x, y, z] not in points3D:
-                                points3D.append([x, y, z])
-                            edge.append(points3D.index([x, y, z]))
+                                points3D.append([x, y, z, coordinate_w])
+                            edge.append(points3D.index([x, y, z, coordinate_w]))
                     index += 1
                 # костыльный метод соединения граней !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 if edge != [] and edge not in edges3D:
                     edges3D.append(edge)
         print(coordinate_w)
         return {'points': points3D, 'edges': edges3D, 'polygons': polygons3D}
+
+    def projection_3D(self, figure4D: dict = (), distance: float = 1.0):
+        projection = np.array([
+            [0., 0., 0., 0],
+            [0., 0., 0., 0],
+            [0., 0., 0., 0]
+        ], float)
+        array = np.array(figure4D['points'])
+        if array is not None:
+            result: list = []
+            if len(array.shape) == 2 and array.shape[1] == 4:
+                for row_XYZW in array:
+                    projection[0][0] = 1.0 / (distance - row_XYZW[3])
+                    projection[1][1] = 1.0 / (distance - row_XYZW[3])
+                    projection[2][2] = 1.0 / (distance - row_XYZW[3])
+                    result.append(projection.dot(row_XYZW.reshape(4, 1)).reshape(1, 3)[0])
+            figure4D['points'] = result
+            return figure4D
+
 
     def scale(self, figure: dict = (), value=1.0):
         array = np.array(figure['points'])

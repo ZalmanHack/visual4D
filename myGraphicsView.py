@@ -6,9 +6,10 @@ from PyQt5.Qt import *
 from PyQt5.Qt import pyqtSignal, pyqtSlot
 from transformations import *
 from figures import *
+import datetime
 
 class MyGraphicView(QGraphicsView):
-
+    fps = pyqtSignal(int)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -77,6 +78,57 @@ class MyGraphicView(QGraphicsView):
                                figure2D['points'][edge[1]][0], figure2D['points'][edge[1]][1], pen)
 
     def draw(self):
+        time_start = datetime.datetime.now()
+        self.scene.clear()
+
+        figure4D = self.transform4D.rotate_xy(self.figure.copy(), self.angles['XY'])  # поворот
+        figure4D = self.transform4D.rotate_xz(figure4D, self.angles['XZ'])  # поворот
+        figure4D = self.transform4D.rotate_yz(figure4D, self.angles['ZY'])  # поворот
+        figure4D = self.transform4D.rotate_xw(figure4D, self.angles['XW'])  # поворот
+        figure4D = self.transform4D.rotate_yw(figure4D, self.angles['YW'])  # поворот
+        figure4D = self.transform4D.rotate_zw(figure4D, self.angles['ZW'])  # поворот
+
+        figure3D = self.transform4D.projection_3D(figure4D.copy(), self.distance)  # проекция
+        figure3D = self.transform3D.rotate_x(figure3D, self.angles['X'])  # поворот
+        figure3D = self.transform3D.rotate_y(figure3D, self.angles['Y'])  # поворот
+        figure3D = self.transform3D.rotate_z(figure3D, self.angles['Z'])  # поворот
+
+        figure2D = self.transform3D.projection_2D(figure3D, self.distance)  # проекция
+        figure2D = self.scale_figure(figure2D, self.scale)
+
+        pen = QPen(Qt.red)
+        pen.setWidth(2)
+        self.connect(figure2D, pen)
+
+
+        interFigure4D = self.transform4D.intersection_4D(figure4D.copy(), self.coordinate_w)   # 3х мерное пересечение с координатой W
+        interFigure3D =  self.transform4D.projection_3D(interFigure4D, self.distance)  # проекция
+        interFigure3D = self.transform3D.rotate_x(interFigure3D, self.angles['X'])  # поворот
+        interFigure3D = self.transform3D.rotate_y(interFigure3D, self.angles['Y'])  # поворот
+        interFigure3D = self.transform3D.rotate_z(interFigure3D, self.angles['Z'])  # поворот
+
+        interFigure2D = self.transform3D.projection_2D(interFigure3D, self.distance)  # проекция
+        interFigure2D = self.scale_figure(interFigure2D, self.scale)
+
+        pen2 = QPen(Qt.black)
+        pen2.setWidth(5)
+        self.connect(interFigure2D, pen2)
+
+
+
+        diameter = 10
+        for point in figure2D['points']:
+            self.scene.addEllipse(point[0] - diameter / 2, point[1] - diameter / 2, diameter, diameter, QPen(Qt.NoPen),
+                                  QBrush(Qt.black))
+
+        time = datetime.datetime.now() - time_start
+        if time.microseconds != 0:
+            self.fps.emit(1000000 / time.microseconds)
+        else:
+            self.fps.emit(1000)
+
+    def draw_OLD(self):
+        time_start = datetime.datetime.now()
         self.scene.clear()
 
         figure4D = self.transform4D.rotate_xy(self.figure.copy(), self.angles['XY'])  # поворот
@@ -92,20 +144,20 @@ class MyGraphicView(QGraphicsView):
         figure3D = self.transform3D.rotate_z(figure3D, self.angles['Z'])  # поворот
 
         figure2D = self.transform3D.projection_2D(figure3D, self.distance)  # проекция
-
         figure2D = self.scale_figure(figure2D, self.scale)
-
         self.connect(figure2D, self.pen)
 
         diameter = 10
         for point in figure2D['points']:
             self.scene.addEllipse(point[0] - diameter/2, point[1] - diameter/2, diameter, diameter, QPen(Qt.NoPen), QBrush(Qt.black))
 
-    def timeout(self):
-        self.draw()
+        time = datetime.datetime.now() - time_start
+        if time.microseconds != 0:
+            self.fps.emit(1000000 / time.microseconds)
+        else:
+            self.fps.emit(1000)
 
-    def rotate_x(self, value: float):
-        self.angles['X'] = value
+    def timeout(self):
         self.draw()
 
     def rotate(self, type: str = 'X', value: float = 0):
